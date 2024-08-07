@@ -3,6 +3,8 @@ import puppeteer from 'puppeteer';
 import cors from 'cors';
 import https from 'https';
 import fs from 'fs';
+import puppeteer from 'puppeteer-core';
+import chrome from 'chrome-aws-lambda';
 
 const app = express();
 app.use(cors());
