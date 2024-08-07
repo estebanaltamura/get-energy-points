@@ -20,7 +20,7 @@ app.get('/scrape', async (req, res) => {
   }
 });
 
-const PORT = 6000;
+const PORT = 3200;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
