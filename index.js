@@ -1,13 +1,14 @@
 import express from 'express';
 import puppeteer from 'puppeteer';
 import cors from 'cors';
+import https from 'https';
+import fs from 'fs';
 
 const app = express();
 app.use(cors());
 
 // Ruta de prueba
 app.get('/', (req, res) => {
-  console.log('Alguien entro')
   res.send('Servidor funcionando correctamente');
 });
 
@@ -15,7 +16,7 @@ app.get('/scrape', async (req, res) => {
   try {
     const browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
@@ -28,8 +29,14 @@ app.get('/scrape', async (req, res) => {
   }
 });
 
+// Configurar HTTPS
 const PORT = 3200;
-app.listen(PORT, () => {
+const httpsOptions = {
+  key: fs.readFileSync('/path/to/your/private.key'),
+  cert: fs.readFileSync('/path/to/your/certificate.crt'),
+};
+
+https.createServer(httpsOptions, app).listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
