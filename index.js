@@ -26,14 +26,16 @@ app.get('/scrape', async (req, res) => {
   }
 });
 
-const PORT = 3200;
-const httpsOptions = {
-  key: fs.readFileSync('/path/to/your/private.key'),
-  cert: fs.readFileSync('/path/to/your/certificate.crt'),
+const options = {
+  key: fs.readFileSync('/etc/cert/privkey.pem'),
+  cert: fs.readFileSync('/etc/cert/fullchain.pem'),
 };
 
-https.createServer(httpsOptions, app).listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+const server = https.createServer(options, app);
+const port = 3200;
+
+server.listen(port, () => {
+  console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
 });
 
 
