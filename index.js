@@ -7,6 +7,7 @@ app.use(cors());
 
 // Ruta de prueba
 app.get('/', (req, res) => {
+  console.log('Alguien entro')
   res.send('Servidor funcionando correctamente');
 });
 
