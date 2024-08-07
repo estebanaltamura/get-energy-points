@@ -2,9 +2,13 @@ import express from 'express';
 import puppeteer from 'puppeteer';
 import cors from 'cors';
 
-
 const app = express();
 app.use(cors());
+
+// Ruta de prueba
+app.get('/', (req, res) => {
+  res.send('Servidor funcionando correctamente');
+});
 
 app.get('/scrape', async (req, res) => {
   try {
@@ -27,3 +31,4 @@ const PORT = 3200;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
