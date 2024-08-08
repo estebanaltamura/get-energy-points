@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "puppeteer": "^23.0.1"
