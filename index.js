@@ -1,6 +1,5 @@
 import express from 'express';
 import puppeteer from 'puppeteer-core';
-import chrome from 'chrome-aws-lambda';
 import cors from 'cors';
 import https from 'https';
 import fs from 'fs';
@@ -16,10 +15,9 @@ app.get('/scrape', async (req, res) => {
   let browser;
   try {
     browser = await puppeteer.launch({
-      args: chrome.args,
-      defaultViewport: chrome.defaultViewport,
-      executablePath: await chrome.executablePath,
-      headless: chrome.headless,
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: '/usr/bin/headless-chromium', // Ruta al ejecutable de Chromium
     });
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
@@ -43,6 +41,7 @@ const port = 3200;
 server.listen(port, () => {
   console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
 });
+
 
 
 
