@@ -1,16 +1,23 @@
 import express from 'express';
 import puppeteer from 'puppeteer';
 import cors from 'cors';
-
+import https from 'https';
+import fs from 'fs';
 
 const app = express();
 app.use(cors());
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.get('/scrape', async (req, res) => {
+  let browser;
   try {
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      executablePath: '/usr/bin/headless-chromium', // Ruta al ejecutable de Chromium
     });
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
@@ -23,7 +30,14 @@ app.get('/scrape', async (req, res) => {
   }
 });
 
-const PORT = 3200;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const options = {
+  key: fs.readFileSync('/etc/cert/privkey.pem'),
+  cert: fs.readFileSync('/etc/cert/fullchain.pem'),
+};
+
+const server = https.createServer(options, app);
+const port = 3200;
+
+server.listen(port, () => {
+  console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
+})
