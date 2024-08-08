@@ -7,6 +7,11 @@ import fs from 'fs';
 const app = express();
 app.use(cors());
 
+// Ruta de salud
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 app.get('/scrape', async (req, res) => {
   let browser;
   try {
