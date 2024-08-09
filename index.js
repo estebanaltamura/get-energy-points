@@ -10,6 +10,9 @@ app.use(cors());
 let queue = []; // Cola para manejar solicitudes
 let isProcessing = false; // Indicador de si se está procesando una solicitud
 
+// Log inicial cuando el servidor se inicia
+console.log(`Servidor iniciado. isProcessing: ${isProcessing}`);
+
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
@@ -18,19 +21,22 @@ app.get('/scrape', (req, res) => {
   // Agregar la solicitud a la cola
   queue.push({ req, res });
   console.log('Solicitud agregada a la cola. Longitud de la cola:', queue.length);
-
+  
   // Procesar la siguiente solicitud si no hay ninguna en curso
   if (!isProcessing) {
+    console.log('isProcessing es false. Iniciando el procesamiento de la cola.');
     processQueue();
   }
 });
 
 const processQueue = async () => {
   if (queue.length === 0) {
+    console.log('La cola está vacía. Nada que procesar.');
     return; // No hay nada en la cola
   }
 
   isProcessing = true; // Marcar como en proceso
+  console.log(`isProcessing cambiado a true. Procesando la siguiente solicitud. Cola restante: ${queue.length - 1}`);
 
   const { req, res } = queue.shift(); // Obtener la siguiente solicitud de la cola
 
@@ -80,6 +86,7 @@ const processQueue = async () => {
   } finally {
     console.log('Procesamiento finalizado.');
     isProcessing = false; // Marcar como no en proceso
+    console.log(`isProcessing cambiado a false. Procesando la siguiente en la cola.`);
     processQueue(); // Procesar la siguiente solicitud en la cola
   }
 };
@@ -93,6 +100,7 @@ const server = https.createServer(options, app);
 const port = 3200;
 
 server.listen(port, () => {
-  console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
+  console.log(`Servidor HTTPS escuchando en el puerto ${port}. isProcessing: ${isProcessing}`);
 });
+
 
