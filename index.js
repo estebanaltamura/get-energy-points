@@ -52,6 +52,13 @@ const processQueue = async () => {
 
     console.log('Procesamiento iniciado...');
 
+    // Validar la URL
+    try {
+      new URL(url);
+    } catch (_) {
+      return res.status(400).send('Error: URL no válida.');
+    }
+
     // Iniciar Puppeteer con Google Chrome
     browser = await puppeteer.launch({
       headless: true,
@@ -60,7 +67,15 @@ const processQueue = async () => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    
+    // Manejo de errores específicos durante la navegación
+    try {
+      await page.goto(url, { waitUntil: 'networkidle0' });
+    } catch (navigationError) {
+      console.error('Error durante la navegación:', navigationError);
+      return res.status(400).send('Error: No se pudo acceder a la URL proporcionada.');
+    }
+
     const content = await page.content();
 
     // Crear una expresión regular dinámica usando la clase proporcionada
@@ -102,5 +117,6 @@ const port = 3200;
 server.listen(port, () => {
   console.log(`Servidor HTTPS escuchando en el puerto ${port}. isProcessing: ${isProcessing}`);
 });
+
 
 
