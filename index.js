@@ -15,10 +15,12 @@ app.get('/health', (req, res) => {
 
 app.get('/scrape', async (req, res) => {
   if (isProcessing) {
+    console.log('Solicitud rechazada: servidor ocupado.');
     return res.status(429).send('Server is busy processing another request. Please try again later.');
   }
 
   isProcessing = true; // Indicar que se ha iniciado un procesamiento
+  console.log('Procesamiento iniciado...');
   let browser;
   try {
     // Extraer la URL y la clase desde la query string
@@ -37,7 +39,7 @@ app.get('/scrape', async (req, res) => {
     });
 
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
+await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // 60 segundos de timeout
     const content = await page.content();
 
     // Crear una expresión regular dinámica usando la clase proporcionada
@@ -61,6 +63,7 @@ app.get('/scrape', async (req, res) => {
     console.error('Error fetching the page:', error);
     res.status(500).send('Error fetching the page');
   } finally {
+    console.log('Procesamiento finalizado.');
     isProcessing = false; // Liberar el bloqueo cuando se completa el procesamiento
   }
 });
@@ -76,4 +79,3 @@ const port = 3200;
 server.listen(port, () => {
   console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
 });
-
