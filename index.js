@@ -21,10 +21,11 @@ app.get('/scrape', async (req, res) => {
       return res.status(400).send('Error: both className and url parameters are required');
     }
 
+    // Iniciar Puppeteer con Google Chrome
     browser = await puppeteer.launch({
       headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: '/usr/bin/headless-chromium', // Ruta al ejecutable de Chromium
+      executablePath: '/usr/bin/google-chrome', // Ruta para Google Chrome
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Opciones recomendadas para servidores
     });
 
     const page = await browser.newPage();
