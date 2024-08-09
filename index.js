@@ -7,20 +7,33 @@ import fs from 'fs';
 const app = express();
 app.use(cors());
 
-let isProcessing = false; // Variable de bloqueo
+let queue = []; // Cola para manejar solicitudes
+let isProcessing = false; // Indicador de si se está procesando una solicitud
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
-app.get('/scrape', async (req, res) => {
-  if (isProcessing) {
-    console.log('Solicitud rechazada: servidor ocupado.');
-    return res.status(429).send('Server is busy processing another request. Please try again later.');
+app.get('/scrape', (req, res) => {
+  // Agregar la solicitud a la cola
+  queue.push({ req, res });
+  console.log('Solicitud agregada a la cola. Longitud de la cola:', queue.length);
+
+  // Procesar la siguiente solicitud si no hay ninguna en curso
+  if (!isProcessing) {
+    processQueue();
+  }
+});
+
+const processQueue = async () => {
+  if (queue.length === 0) {
+    return; // No hay nada en la cola
   }
 
-  isProcessing = true; // Indicar que se ha iniciado un procesamiento
-  console.log('Procesamiento iniciado...');
+  isProcessing = true; // Marcar como en proceso
+
+  const { req, res } = queue.shift(); // Obtener la siguiente solicitud de la cola
+
   let browser;
   try {
     // Extraer la URL y la clase desde la query string
@@ -31,6 +44,8 @@ app.get('/scrape', async (req, res) => {
       return res.status(400).send('Error: url and className parameters are required.');
     }
 
+    console.log('Procesamiento iniciado...');
+
     // Iniciar Puppeteer con Google Chrome
     browser = await puppeteer.launch({
       headless: true,
@@ -39,7 +54,7 @@ app.get('/scrape', async (req, res) => {
     });
 
     const page = await browser.newPage();
-await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // 60 segundos de timeout
+    await page.goto(url, { waitUntil: 'networkidle0' });
     const content = await page.content();
 
     // Crear una expresión regular dinámica usando la clase proporcionada
@@ -64,9 +79,10 @@ await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 }); // 60 segun
     res.status(500).send('Error fetching the page');
   } finally {
     console.log('Procesamiento finalizado.');
-    isProcessing = false; // Liberar el bloqueo cuando se completa el procesamiento
+    isProcessing = false; // Marcar como no en proceso
+    processQueue(); // Procesar la siguiente solicitud en la cola
   }
-});
+};
 
 const options = {
   key: fs.readFileSync('/etc/cert/privkey.pem'),
@@ -79,3 +95,4 @@ const port = 3200;
 server.listen(port, () => {
   console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
 });
+
