@@ -16,9 +16,7 @@ app.get('/scrape', async (req, res) => {
   try {
    browser = await puppeteer.launch({
   headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
   executablePath: '/snap/bin/chromium',
-  timeout: 60000, // Aumenta el tiempo de espera a 60 segundos
 });
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
