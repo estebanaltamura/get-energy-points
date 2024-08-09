@@ -14,40 +14,18 @@ app.get('/health', (req, res) => {
 app.get('/scrape', async (req, res) => {
   let browser;
   try {
-    // Obtener la clase y la URL desde la consulta
-    const { className, url } = req.query;
-
-    if (!className || !url) {
-      return res.status(400).send('Error: both className and url parameters are required');
-    }
-
-    // Iniciar Puppeteer con Google Chrome
+    // Cambia la ruta del ejecutable para usar Google Chrome
     browser = await puppeteer.launch({
       headless: true,
       executablePath: '/usr/bin/google-chrome', // Ruta para Google Chrome
       args: ['--no-sandbox', '--disable-setuid-sandbox'], // Opciones recomendadas para servidores
     });
-
+    
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: 'networkidle0' });
+    await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
     const content = await page.content();
     await browser.close();
-
-    // Crear una expresión regular dinámica usando la clase proporcionada
-    const regex = new RegExp(`class="${className}"[^>]*>([^<]*)<`, 'g');
-    let match;
-    const matches = [];
-
-    // Buscar todas las coincidencias en el contenido de la página
-    while ((match = regex.exec(content)) !== null) {
-      matches.push(match[1].trim());
-    }
-
-    if (matches.length > 0) {
-      res.status(200).send(matches);
-    } else {
-      res.status(404).send('Class not found or no content available');
-    }
+    res.status(200).send(content);
   } catch (error) {
     console.error('Error fetching the page:', error);
     res.status(500).send('Error fetching the page');
