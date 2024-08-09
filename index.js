@@ -17,7 +17,7 @@ app.get('/scrape', async (req, res) => {
     browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: '/usr/bin/headless-chromium', // Ruta al ejecutable de Chromium
+      executablePath: '/snap/bin/chromium', // Ruta al ejecutable de Chromium Snap
     });
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
