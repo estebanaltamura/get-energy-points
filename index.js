@@ -14,11 +14,12 @@ app.get('/health', (req, res) => {
 app.get('/scrape', async (req, res) => {
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      executablePath: '/snap/bin/chromium', // Ruta al ejecutable de Chromium Snap
-    });
+   browser = await puppeteer.launch({
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  executablePath: '/snap/bin/chromium',
+  timeout: 60000, // Aumenta el tiempo de espera a 60 segundos
+});
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
     const content = await page.content();
