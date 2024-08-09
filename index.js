@@ -14,10 +14,13 @@ app.get('/health', (req, res) => {
 app.get('/scrape', async (req, res) => {
   let browser;
   try {
-   browser = await puppeteer.launch({
-  headless: true,
-  executablePath: '/snap/bin/chromium',
-});
+    // Cambia la ruta del ejecutable para usar Google Chrome
+    browser = await puppeteer.launch({
+      headless: true,
+      executablePath: '/usr/bin/google-chrome', // Ruta para Google Chrome
+      args: ['--no-sandbox', '--disable-setuid-sandbox'], // Opciones recomendadas para servidores
+    });
+    
     const page = await browser.newPage();
     await page.goto('https://www.khanacademy.org/profile/idev0x00', { waitUntil: 'networkidle0' });
     const content = await page.content();
@@ -39,4 +42,5 @@ const port = 3200;
 
 server.listen(port, () => {
   console.log(`Servidor HTTPS escuchando en el puerto ${port}`);
-})
+});
+
